@@ -18,6 +18,9 @@ export class LogsRouter extends PromiseRouter {
     this.route('GET','/logs', (req) => {
       return this.handleGET(req);
     });
+    this.route('GET','/scriptlog', (req) => {
+      return this.handleScriptLog(req);
+    });
   }
 
   // Returns a promise for a {response} object.
@@ -28,19 +31,11 @@ export class LogsRouter extends PromiseRouter {
   // order (optional) Direction of results returned, either “asc” or “desc”. Defaults to “desc”.
   // size (optional) Number of rows returned by search. Defaults to 10
   handleGET(req) {
-    if (!req.config || !req.config.loggerController) {
-      throw new Parse.Error(Parse.Error.PUSH_MISCONFIGURED,
-        'Logger adapter is not availabe');
-    }
-
-    let promise = new Parse.Promise();
-    let from = req.query.from;
-    let until = req.query.until;
-    let size = req.query.size;
-    let order = req.query.order
-    let level = req.query.level;
-    enforceSecurity(req.auth);
-    
+    const from = req.query.from;
+    const until = req.query.until;
+    const size = req.query.size;
+    const order = req.query.order
+    const level = req.query.level;
     const options = {
       from,
       until,
@@ -48,7 +43,21 @@ export class LogsRouter extends PromiseRouter {
       order,
       level,
     }
-    
+    return this.getLogs(req, options);
+  }
+  
+  handleScriptLog(req) {
+    const size = req.query.n;
+    const level = req.query.level;
+    return this.getLogs(req, { size, level });
+  }
+  
+  getLogs(req, options) {
+    if (!req.config || !req.config.loggerController) {
+      throw new Parse.Error(Parse.Error.PUSH_MISCONFIGURED,
+        'Logger adapter is not availabe');
+    }
+    enforceSecurity(req.auth);
     return req.config.loggerController.getLogs(options).then((result) => {
       return Promise.resolve({
         response: result
