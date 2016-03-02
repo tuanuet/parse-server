@@ -20,7 +20,7 @@ describe('LogsRouter', () => {
     var router = new LogsRouter();
 
     expect(() => {
-      router.handleGET(request);
+      router.validateRequest(request);
     }).not.toThrow();
     done();
   });
@@ -40,7 +40,7 @@ describe('LogsRouter', () => {
     var router = new LogsRouter();
 
     expect(() => {
-      router.handleGET(request);
+      router.validateRequest(request);
     }).toThrow();
     done();
   });
@@ -60,7 +60,7 @@ describe('LogsRouter', () => {
    var router = new LogsRouter();
 
     expect(() => {
-      router.handleGET(request);
+      router.validateRequest(request);
     }).toThrow();
     done();
   });
